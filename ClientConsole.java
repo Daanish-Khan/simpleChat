@@ -2,7 +2,6 @@
 // "Object Oriented Software Engineering" and is issued under the open-source
 // license found at www.lloseng.com 
 
-import java.io.IOException;
 import java.util.Scanner;
 
 import client.ChatClient;
@@ -47,13 +46,8 @@ public class ClientConsole implements ChatIF {
 	 * @param port The port to connect on.
 	 */
 	public ClientConsole(String host, int port, String loginID) {
-		try {
-			client = new ChatClient(host, port, this, loginID);
 
-		} catch (IOException exception) {
-			System.out.println("Error: Can't setup connection!" + " Terminating client.");
-			System.exit(1);
-		}
+		client = new ChatClient(host, port, this, loginID);
 
 		// Create scanner object to read from console
 		fromConsole = new Scanner(System.in);
@@ -126,7 +120,7 @@ public class ClientConsole implements ChatIF {
 			chat.accept(); // Wait for console data
 
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("ERROR: A login ID must be provided! Terminating...");
+			System.out.println("ERROR - No login ID specified. Connection Aborted.");
 		}
 
 	}

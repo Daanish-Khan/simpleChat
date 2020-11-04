@@ -39,12 +39,17 @@ public class ChatClient extends AbstractClient {
 	 * @param clientUI The interface type variable.
 	 */
 
-	public ChatClient(String host, int port, ChatIF clientUI, String loginID) throws IOException {
+	public ChatClient(String host, int port, ChatIF clientUI, String loginID) {
 		super(host, port); // Call the superclass constructor
 		this.clientUI = clientUI;
 		this.loginID = loginID;
-		openConnection();
-		sendToServer("#login " + loginID);
+		try {
+			openConnection();
+			sendToServer("#login " + loginID);
+		} catch (IOException exception) {
+			System.out.println("Cannot open connection. Awaiting command.");
+		}
+
 	}
 
 	// Instance methods ************************************************
@@ -97,8 +102,9 @@ public class ChatClient extends AbstractClient {
 					if (message.contains("sethost")) {
 
 						if (!isConnected()) {
-							message.substring(7);
+							message = message.substring(8);
 							setHost(message);
+							System.out.println("Host set to: " + message);
 						} else
 							System.out.println("ERROR: Client must be logged off!");
 
@@ -107,8 +113,9 @@ public class ChatClient extends AbstractClient {
 						if (!isConnected()) {
 
 							try {
-								message.substring(7);
+								message = message.substring(8);
 								setPort(Integer.parseInt(message));
+								System.out.println("Port set to: " + message);
 							} catch (NumberFormatException e) {
 								System.out.println("ERROR: Port must be a number!");
 							}
@@ -133,12 +140,12 @@ public class ChatClient extends AbstractClient {
 
 	@Override
 	public void connectionClosed() {
-		System.out.println("The server has shut down. Quitting...");
+		System.out.println("Connection Closed.");
 	}
 
 	@Override
 	public void connectionException(Exception exception) {
-		quit();
+		System.out.println("The server has shut down. Disconnecting...");
 	}
 
 	/**

@@ -57,8 +57,11 @@ public class EchoServer extends AbstractServer {
 					e.printStackTrace();
 				}
 			} else {
+				System.out.println("Message received: " + msg + " from " + client.getInfo("loginID"));
 				client.setInfo("loginID", msg.toString().substring(7));
 				hasAlreadyConnected = false;
+				this.sendToAllClients(client.getInfo("loginID") + " has logged on.");
+				System.out.println(client.getInfo("loginID") + " has logged on.");
 			}
 		} else {
 			System.out.println("Message received: " + msg + " from " + client.getInfo("loginID"));
@@ -84,24 +87,25 @@ public class EchoServer extends AbstractServer {
 
 	@Override
 	synchronized public void clientDisconnected(ConnectionToClient client) {
-		System.out.println("A client has disconnected from the server.");
+		System.out.println(client.getInfo("loginID") + " has disconnected.");
+		this.sendToAllClients(client.getInfo("loginID") + " has disconnected.");
 	}
 
 	@Override
 	synchronized public void clientConnected(ConnectionToClient client) {
-		System.out.println("A client has connected to the server.");
+		System.out.println("A new client is attempting to connect to the server.");
 		hasAlreadyConnected = true;
 	}
 
 	@Override
 	synchronized public void clientException(ConnectionToClient client, Throwable exception) {
-		System.out.println("A client has disconnected from the server.");
+		System.out.println(client.getInfo("loginID") + " has disconnected.");
 	}
 
 	public void handleMessageFromServerUI(String msg, ServerConsole sc) {
 		if (msg.startsWith("#")) {
 
-			msg.substring(1);
+			msg = msg.substring(1);
 
 			switch (msg) {
 
@@ -122,6 +126,7 @@ public class EchoServer extends AbstractServer {
 				break;
 			case "stop":
 				stopListening();
+				this.sendToAllClients("WARNING - The server has stopped listening for connections");
 				break;
 			case "start":
 				try {
@@ -139,12 +144,12 @@ public class EchoServer extends AbstractServer {
 				break;
 			default:
 				if (msg.contains("setport")) {
-					msg.substring(7);
 					if (!isListening()) {
 
 						try {
-							msg.substring(7);
+							msg = msg.substring(8);
 							setPort(Integer.parseInt(msg));
+							System.out.println("Port set to: " + msg);
 						} catch (NumberFormatException e) {
 							System.out.println("ERROR: Port must be a number!");
 						}
