@@ -61,6 +61,57 @@ public class ChatClient extends AbstractClient {
 	 */
 	public void handleMessageFromClientUI(String message) {
 		try {
+
+			if (message.startsWith("#")) {
+
+				message = message.substring(1);
+
+				switch (message) {
+
+				case "quit":
+					quit();
+					break;
+				case "logoff":
+					closeConnection();
+					break;
+				case "login":
+					if (isConnected())
+						System.out.println("ERROR: The client is already connected to the server!");
+					openConnection();
+					break;
+				case "gethost":
+					System.out.println("Host: " + getHost());
+					break;
+				case "getport":
+					System.out.println("Port: " + getPort());
+					break;
+				default:
+					if (message.contains("sethost")) {
+
+						if (!isConnected()) {
+							message.substring(7);
+							setHost(message);
+						} else
+							System.out.println("ERROR: Client must be logged off!");
+
+					} else if (message.contains("setport")) {
+
+						if (!isConnected()) {
+
+							try {
+								message.substring(7);
+								setPort(Integer.parseInt(message));
+							} catch (NumberFormatException e) {
+								System.out.println("ERROR: Port must be a number!");
+							}
+
+						} else
+							System.out.println("ERROR: Client must be logged off!");
+					}
+					break;
+				}
+			}
+
 			sendToServer(message);
 		} catch (IOException e) {
 			clientUI.display("Could not send message to server.  Terminating client.");
