@@ -2,6 +2,8 @@
 // "Object Oriented Software Engineering" and is issued under the open-source
 // license found at www.lloseng.com 
 
+import java.io.IOException;
+
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 
@@ -79,8 +81,67 @@ public class EchoServer extends AbstractServer {
 	}
 
 	public void handleMessageFromServerUI(String msg, ServerConsole sc) {
-		sc.display(msg);
-		sendToAllClients("SERVER MSG> " + msg);
+		if (msg.startsWith("#")) {
+
+			msg.substring(1);
+
+			switch (msg) {
+
+			case "quit":
+				try {
+					close();
+					System.exit(0);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				break;
+			case "close":
+				try {
+					close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			case "stop":
+				stopListening();
+				break;
+			case "start":
+				try {
+					if (!isListening()) {
+						listen();
+					} else {
+						System.out.println("ERROR: Server is already started!");
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				break;
+			case "getport":
+				System.out.println("Port: " + getPort());
+				break;
+			default:
+				if (msg.contains("setport")) {
+					msg.substring(7);
+					if (!isListening()) {
+
+						try {
+							msg.substring(7);
+							setPort(Integer.parseInt(msg));
+						} catch (NumberFormatException e) {
+							System.out.println("ERROR: Port must be a number!");
+						}
+
+					} else
+						System.out.println("ERROR: Server must be closed!");
+				}
+				break;
+
+			}
+
+		} else {
+			sc.display(msg);
+			sendToAllClients("SERVER MSG> " + msg);
+		}
 	}
 
 	// Class methods ***************************************************
