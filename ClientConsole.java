@@ -109,10 +109,10 @@ public class ClientConsole implements ChatIF {
 
 		try {
 			port = Integer.parseInt(args[0]);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
 			try {
 				host = args[0];
-			} catch (ArrayIndexOutOfBoundsException e) {
+			} catch (ArrayIndexOutOfBoundsException f) {
 				host = "localhost";
 			}
 		}
