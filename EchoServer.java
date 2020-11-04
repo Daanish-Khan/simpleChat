@@ -25,6 +25,8 @@ public class EchoServer extends AbstractServer {
 	 */
 	final public static int DEFAULT_PORT = 5555;
 
+	private boolean hasAlreadyConnected = false;
+
 	// Constructors ****************************************************
 
 	/**
@@ -45,8 +47,23 @@ public class EchoServer extends AbstractServer {
 	 * @param client The connection from which the message originated.
 	 */
 	public void handleMessageFromClient(Object msg, ConnectionToClient client) {
-		System.out.println("Message received: " + msg + " from " + client);
-		this.sendToAllClients(msg);
+
+		if (msg.toString().startsWith("#login")) {
+			if (!hasAlreadyConnected) {
+				try {
+					client.sendToClient("ERROR: You cannot login again! Terminating connection...");
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				client.setInfo("loginID", msg.toString().substring(7));
+				hasAlreadyConnected = false;
+			}
+		} else {
+			System.out.println("Message received: " + msg + " from " + client.getInfo("loginID"));
+			this.sendToAllClients(client.getInfo("loginID") + ": " + msg);
+		}
 	}
 
 	/**
@@ -73,6 +90,7 @@ public class EchoServer extends AbstractServer {
 	@Override
 	synchronized public void clientConnected(ConnectionToClient client) {
 		System.out.println("A client has connected to the server.");
+		hasAlreadyConnected = true;
 	}
 
 	@Override
