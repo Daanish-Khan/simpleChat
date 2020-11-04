@@ -51,7 +51,11 @@ public class ChatClient extends AbstractClient {
 	 * @param msg The message from the server.
 	 */
 	public void handleMessageFromServer(Object msg) {
-		clientUI.display(msg.toString());
+		if (msg.toString().startsWith("SERVER MSG>")) {
+			System.out.println(msg.toString());
+		} else {
+			System.out.println("> " + msg.toString());
+		}
 	}
 
 	/**
@@ -110,9 +114,9 @@ public class ChatClient extends AbstractClient {
 					}
 					break;
 				}
-			}
+			} else
+				sendToServer(message);
 
-			sendToServer(message);
 		} catch (IOException e) {
 			clientUI.display("Could not send message to server.  Terminating client.");
 			quit();

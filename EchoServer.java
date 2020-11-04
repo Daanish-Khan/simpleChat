@@ -78,6 +78,11 @@ public class EchoServer extends AbstractServer {
 		System.out.println("A client has disconnected from the server.");
 	}
 
+	public void handleMessageFromServerUI(String msg, ServerConsole sc) {
+		sc.display(msg);
+		sendToAllClients("SERVER MSG> " + msg);
+	}
+
 	// Class methods ***************************************************
 
 	/**
@@ -97,12 +102,14 @@ public class EchoServer extends AbstractServer {
 		}
 
 		EchoServer sv = new EchoServer(port);
+		ServerConsole sc = new ServerConsole(sv);
 
 		try {
 			sv.listen(); // Start listening for connections
 		} catch (Exception ex) {
 			System.out.println("ERROR - Could not listen for clients!");
 		}
+		sc.accept();
 	}
 }
 //End of EchoServer class
