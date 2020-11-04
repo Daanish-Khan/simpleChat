@@ -46,9 +46,9 @@ public class ClientConsole implements ChatIF {
 	 * @param host The host to connect to.
 	 * @param port The port to connect on.
 	 */
-	public ClientConsole(String host, int port) {
+	public ClientConsole(String host, int port, String loginID) {
 		try {
-			client = new ChatClient(host, port, this);
+			client = new ChatClient(host, port, this, loginID);
 
 		} catch (IOException exception) {
 			System.out.println("Error: Can't setup connection!" + " Terminating client.");
@@ -99,26 +99,36 @@ public class ClientConsole implements ChatIF {
 	public static void main(String[] args) {
 		String host = "";
 		int port;
-
-		// Try to get the port first
-		try {
-			port = Integer.parseInt(args[1]);
-		} catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-			port = DEFAULT_PORT;
-		}
+		String loginID;
 
 		try {
-			port = Integer.parseInt(args[0]);
-		} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+
+			loginID = args[0];
+
+			// Try to get the port first
 			try {
-				host = args[0];
-			} catch (ArrayIndexOutOfBoundsException f) {
-				host = "localhost";
+				port = Integer.parseInt(args[2]);
+			} catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
+				port = DEFAULT_PORT;
 			}
+
+			try {
+				port = Integer.parseInt(args[1]);
+			} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+				try {
+					host = args[1];
+				} catch (ArrayIndexOutOfBoundsException f) {
+					host = "localhost";
+				}
+			}
+
+			ClientConsole chat = new ClientConsole(host, port, loginID);
+			chat.accept(); // Wait for console data
+
+		} catch (ArrayIndexOutOfBoundsException e) {
+			System.out.println("ERROR: A login ID must be provided! Terminating...");
 		}
 
-		ClientConsole chat = new ClientConsole(host, port);
-		chat.accept(); // Wait for console data
 	}
 }
 //End of ConsoleChat class
